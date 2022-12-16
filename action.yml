@@ -21,10 +21,17 @@ runs:
       run: |-
         export ECR_REGION=${{ inputs.ECR_REGION }}
         export ECR_ACCOUNT_NUMBER=${{ inputs.ECR_ACCOUNT_NUMBER }}
-        export ECR_URI=${ECR_ACCOUNT_NUMBER}.dkr.ecr.${ECR_REGION}.amazonaws.com
-        echo "ecr uri - ${ECR_URI}"
         export IMG=${{ inputs.IMG }}
         export REPOSITORY=${{ inputs.REPOSITORY }}
+
+        echo -e "using inputs:\n \
+                ecr-region - ${ECR_REGION}\n \
+                acc_num - ${ECR_ACCOUNT_NUMBER}\n \
+                img - ${IMG}\n \
+                repo - ${REPOSITORY}"
+
+        export ECR_URI=${ECR_ACCOUNT_NUMBER}.dkr.ecr.${ECR_REGION}.amazonaws.com
+        echo "ecr uri - ${ECR_URI}"
         echo "Login to ECR"
         aws ecr get-login-password \
           --region ${ECR_REGION} \
@@ -32,5 +39,6 @@ runs:
               --username AWS \
               --password-stdin ${ECR_URI}
         echo "Pushing ${IMG} to ECR with the ${ECR_URI}"
+        set -x
         docker push ${ECR_URI}/${REPOSITORY}:${IMG}
 
