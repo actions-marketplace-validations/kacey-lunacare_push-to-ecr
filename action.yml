@@ -4,11 +4,14 @@ inputs:
   ECR_REGION:
     description: region ECR is in
     required: true
-  ECR_URI:
-    description: composed URI for the ECR repository"
+  ECR_ACCOUNT_NUMBER:
+    description: account number for ecr repository
     required: true
   IMG:
     description: image to push to ECR, this can be a matrix of tagged images
+    required: true
+  REPOSITORY:
+    description: repository to publish the image to
     required: true
 runs:
   using: composite
@@ -17,8 +20,11 @@ runs:
       shell: bash
       run: |-
         export ECR_REGION=${{ inputs.ECR_REGION }}
-        export ECR_URI=${{ inputs.ECR_URI }}
+        export ECR_ACCOUNT_NUMBER=${{ inputs.ECR_ACCOUNT_NUMBER }}
+        export ECR_URI=${ECR_ACCOUNT_NUMBER}.dkr.ecr.${ECR_REGION}.amazonaws.com
+        echo "ecr uri - ${ECR_URI}"
         export IMG=${{ inputs.IMG }}
+        export REPOSITORY=${{ inputs.REPOSITORY }}
         echo "Login to ECR"
         aws ecr get-login-password \
           --region ${ECR_REGION} \
@@ -26,5 +32,5 @@ runs:
               --username AWS \
               --password-stdin ${ECR_URI}
         echo "Pushing ${IMG} to ECR with the ${ECR_URI}"
-        docker push ${ECR_URI}:${IMG}
+        docker push ${ECR_URI}/${REPOSITORY}:${IMG}
 
