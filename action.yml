@@ -1,0 +1,30 @@
+name: Deploy image to ECR with IAM allowance
+description: Deploys an image to an ECR repository 
+inputs:
+  ECR_REGION:
+    description: region ECR is in
+    required: true
+  ECR_URI:
+    description: composed URI for the ECR repository"
+    required: true
+  IMG:
+    description: image to push to ECR, this can be a matrix of tagged images
+    required: true
+runs:
+  using: composite
+  steps:
+    - name: Push to ECR
+      shell: bash
+      run: |-
+        export ECR_REGION=${{ inputs.ECR_REGION }}
+        export ECR_URI=${{ inputs.ECR_URI }}
+        export IMG=${{ inputs.IMG }}
+        echo "Login to ECR"
+        aws ecr get-login-password \
+          --region ${ECR_REGION} \
+          | docker login \
+              --username AWS \
+              --password-stdin ${ECR_URI}
+        echo "Pushing ${IMG} to ECR with the ${ECR_URI}"
+        docker push ${IMG}
+
