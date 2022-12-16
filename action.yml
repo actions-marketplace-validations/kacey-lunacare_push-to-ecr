@@ -40,5 +40,5 @@ runs:
               --password-stdin ${ECR_URI}
         echo "Pushing ${IMG} to ECR with the ${ECR_URI}"
         set -x
-        docker push ${ECR_URI}/${REPOSITORY}:${IMG}
+        docker push "${ECR_URI}/${REPOSITORY}:${IMG}"
 
